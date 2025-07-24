@@ -1,0 +1,318 @@
+{{ define "main" }}
+<main class="main-content py-4">
+    <div class="container">
+        {{ $articles := where .Site.RegularPages "Section" "in" (slice "automotive" "economy") }}
+        {{ $sortedArticles := $articles.ByDate.Reverse }}
+        
+        <!-- 최신 기사 20개를 가져와서 랜덤으로 섞기 -->
+        {{ $recentArticles := first 20 $sortedArticles }}
+        {{ $shuffledArticles := $recentArticles | shuffle }}
+        
+        <!-- 나머지 기사들도 랜덤으로 섞어서 추가 -->
+        {{ $remainingArticles := after 20 $sortedArticles | shuffle }}
+        {{ $allShuffledArticles := $shuffledArticles | append $remainingArticles }}
+        
+        <!-- 메인 헤드라인 -->
+        {{ if gt (len $allShuffledArticles) 0 }}
+        <section class="headline-section mb-5">
+            {{ $mainArticle := index $allShuffledArticles 0 }}
+            <div class="headline-card shadow-sm rounded overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-lg-7">
+                        {{ if $mainArticle.Params.images }}
+                        <img src="{{ index $mainArticle.Params.images 0 }}" 
+                             alt="{{ $mainArticle.Title }}" 
+                             class="img-fluid w-100 h-100" 
+                             style="object-fit: cover; min-height: 400px;"
+                             loading="eager"
+                             fetchpriority="high"
+                             decoding="sync"
+                             width="800"
+                             height="400">
+                        {{ else }}
+                        <div class="no-image-placeholder d-flex align-items-center justify-content-center bg-light" style="min-height: 400px;">
+                            <i class="fas fa-newspaper fa-5x text-muted"></i>
+                        </div>
+                        {{ end }}
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="p-4 h-100 d-flex flex-column">
+                            <span class="badge bg-primary mb-3">최신 뉴스</span>
+                            <h1 class="h2 mb-3">
+                                <a href="{{ $mainArticle.RelPermalink }}" class="text-decoration-none text-dark">
+                                    {{ $mainArticle.Title }}
+                                </a>
+                            </h1>
+                            <p class="text-muted mb-4">{{ $mainArticle.Summary | plainify | truncate 200 }}</p>
+                            <div class="mt-auto">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">
+                                        <i class="far fa-clock me-1"></i>
+                                        {{ $mainArticle.Date.Format "2006년 01월 02일" }}
+                                    </small>
+                                    <span class="badge bg-{{ if eq $mainArticle.Section "automotive" }}danger{{ else }}warning{{ end }}">
+                                        {{ $mainArticle.Section | title }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        {{ end }}
+
+        <!-- 주요 기사 그리드 -->
+        {{ if gt (len $allShuffledArticles) 1 }}
+        <section class="featured-section mb-5">
+            <h2 class="h4 mb-4 pb-2 border-bottom">주요 기사</h2>
+            <div class="row g-4">
+                {{ range first 3 (after 1 $allShuffledArticles) }}
+                <div class="col-12 col-md-4">
+                    <article class="card shadow-sm border-0">
+                        <a href="{{ .RelPermalink }}" class="text-decoration-none">
+                            <div class="card-img-top position-relative" style="height: 200px; overflow: hidden;">
+                                {{ if .Params.images }}
+                                <img src="{{ index .Params.images 0 }}" 
+                                     alt="{{ .Title }}" 
+                                     class="img-fluid w-100 h-100" 
+                                     style="object-fit: cover;"
+                                     loading="lazy"
+                                     decoding="async">
+                                {{ else }}
+                                <div class="no-image-placeholder d-flex align-items-center justify-content-center bg-light h-100">
+                                    <i class="fas fa-image fa-3x text-muted"></i>
+                                </div>
+                                {{ end }}
+                                <span class="badge bg-{{ if eq .Section "automotive" }}danger{{ else }}warning{{ end }} position-absolute top-0 end-0 m-2">
+                                    {{ .Section | title }}
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <h3 class="h5 card-title text-dark mb-2">{{ .Title | truncate 60 }}</h3>
+                                <p class="card-text text-muted small mb-2">{{ .Summary | plainify | truncate 100 }}</p>
+                                <small class="text-muted">
+                                    <i class="far fa-calendar me-1"></i>
+                                    {{ .Date.Format "01월 02일" }}
+                                </small>
+                            </div>
+                        </a>
+                    </article>
+                </div>
+                {{ end }}
+            </div>
+        </section>
+        {{ end }}
+
+        <!-- 최신 뉴스 목록 -->
+        {{ if gt (len $allShuffledArticles) 4 }}
+        <section class="latest-section">
+            <h2 class="h4 mb-4 pb-2 border-bottom">최신 뉴스</h2>
+            
+            <!-- 데스크톱 버전: 리스트 형태 -->
+            <div class="latest-articles d-none d-md-block">
+                {{ range first 20 (after 4 $allShuffledArticles) }}
+                <article class="article-item mb-4 pb-4 border-bottom">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <a href="{{ .RelPermalink }}" class="d-block">
+                                <div class="article-thumbnail rounded overflow-hidden" style="height: 150px;">
+                                    {{ if .Params.images }}
+                                    <img src="{{ index .Params.images 0 }}" 
+                                         alt="{{ .Title }}" 
+                                         class="img-fluid w-100 h-100" 
+                                         style="object-fit: cover;"
+                                         loading="lazy">
+                                    {{ else }}
+                                    <div class="no-image-placeholder d-flex align-items-center justify-content-center bg-light h-100">
+                                        <i class="fas fa-{{ if eq .Section "automotive" }}car{{ else }}chart-line{{ end }} fa-2x text-muted"></i>
+                                    </div>
+                                    {{ end }}
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="article-content">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge bg-{{ if eq .Section "automotive" }}danger{{ else }}warning{{ end }} me-2">
+                                        {{ .Section | title }}
+                                    </span>
+                                    <small class="text-muted">
+                                        <i class="far fa-clock me-1"></i>
+                                        {{ .Date.Format "2006년 01월 02일" }}
+                                    </small>
+                                </div>
+                                <h3 class="h5 mb-2">
+                                    <a href="{{ .RelPermalink }}" class="text-decoration-none text-dark">
+                                        {{ .Title }}
+                                    </a>
+                                </h3>
+                                <p class="text-muted mb-0">{{ .Summary | plainify | truncate 150 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                {{ end }}
+            </div>
+            
+            <!-- 모바일 버전: 카드 그리드 형태 (주요기사와 동일) -->
+            <div class="row g-4 d-md-none">
+                {{ range first 8 (after 4 $allShuffledArticles) }}
+                <div class="col-6 col-sm-4">
+                    <article class="card h-100 shadow-sm border-0">
+                        <a href="{{ .RelPermalink }}" class="text-decoration-none">
+                            <div class="card-img-top position-relative" style="height: 140px; overflow: hidden;">
+                                {{ if .Params.images }}
+                                <img src="{{ index .Params.images 0 }}" 
+                                     alt="{{ .Title }}" 
+                                     class="img-fluid w-100 h-100" 
+                                     style="object-fit: cover;"
+                                     loading="lazy">
+                                {{ else }}
+                                <div class="no-image-placeholder d-flex align-items-center justify-content-center bg-light h-100">
+                                    <i class="fas fa-image fa-2x text-muted"></i>
+                                </div>
+                                {{ end }}
+                                <span class="badge bg-{{ if eq .Section "automotive" }}danger{{ else }}warning{{ end }} position-absolute top-0 end-0 m-1" style="font-size: 0.7rem;">
+                                    {{ .Section | title }}
+                                </span>
+                            </div>
+                            <div class="card-body p-2">
+                                <h3 class="h6 card-title text-dark mb-1" style="font-size: 0.85rem; line-height: 1.3;">{{ .Title | truncate 45 }}</h3>
+                                <small class="text-muted" style="font-size: 0.7rem;">
+                                    <i class="far fa-calendar me-1"></i>
+                                    {{ .Date.Format "01.02" }}
+                                </small>
+                            </div>
+                        </a>
+                    </article>
+                </div>
+                {{ end }}
+            </div>
+            
+            <!-- 모바일 더보기 버튼 (최신뉴스 섹션 바로 아래) -->
+            {{ if gt (len $sortedArticles) 8 }}
+            <div class="text-center mt-4 d-md-none">
+                <a href="/automotive/" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-car me-1"></i>자동차 더보기
+                </a>
+            </div>
+            {{ end }}
+            
+            <!-- 더보기 버튼 -->
+            {{ if gt (len $sortedArticles) 24 }}
+            <div class="text-center mt-5">
+                <a href="/automotive/" class="btn btn-outline-danger">자동차 뉴스 더보기</a>
+            </div>
+            {{ end }}
+        </section>
+        {{ end }}
+
+        <!-- 기사가 없을 때 -->
+        {{ if eq (len $sortedArticles) 0 }}
+        <div class="text-center py-5">
+            <i class="fas fa-newspaper fa-5x text-muted mb-4"></i>
+            <h2 class="h4 text-muted">아직 게시된 기사가 없습니다.</h2>
+            <p class="text-muted">곧 새로운 뉴스가 업데이트될 예정입니다.</p>
+        </div>
+        {{ end }}
+    </div>
+</main>
+
+<style>
+.main-article-image,
+.no-image-card,
+.no-image-main {
+    height: 250px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.main-article-image img,
+.card-img-top img {
+    object-fit: cover;
+    border-radius: 0.375rem;
+}
+
+.no-image-card {
+    height: 200px;
+}
+
+.latest-news-thumbnail,
+.no-image-latest {
+    height: 80px;
+    width: 100%;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.latest-news-thumbnail-pc,
+.no-image-latest-pc {
+    height: 120px;
+    width: 100%;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.latest-news-thumbnail img,
+.latest-news-thumbnail-pc img {
+    object-fit: cover;
+}
+
+.section-title {
+    font-weight: bold;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 0.5rem;
+}
+
+.news-icon {
+    padding: 1rem;
+}
+
+.latest-news-thumbnail:hover,
+.latest-news-thumbnail-pc:hover {
+    border-color: #007bff;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease-in-out;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* 포커스 테두리 제거 */
+.card:focus,
+.card:focus-within,
+.card a:focus,
+.text-decoration-none:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: transparent !important;
+}
+
+/* 카드 호버 효과 개선 */
+.card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+
+/* 링크 스타일 초기화 */
+a.text-decoration-none:focus {
+    outline: none;
+    text-decoration: none !important;
+}
+</style>
+{{ end }}

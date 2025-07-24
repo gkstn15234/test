@@ -1,0 +1,55 @@
+{{/*
+  WebP 이미지 최적화 숏코드
+  사용법: {{< webp-image src="image.jpg" alt="이미지 설명" width="1200" height="675" >}}
+*/}}
+
+{{- $original := .Page.Resources.GetMatch (.Get 0) -}}
+{{- $alt := .Get "alt" | default (.Get 1) -}}
+{{- $class := .Get "class" | default "" -}}
+{{- $loading := .Get "loading" | default "lazy" -}}
+{{- $fetchpriority := .Get "fetchpriority" | default "auto" -}}
+
+{{- if $original -}}
+    {{- $webpLarge := $original.Resize "800x webp q85" -}}
+    {{- $jpegLarge := $original.Resize "800x jpeg q85" -}}
+    {{- $webpMedium := $original.Resize "400x webp q85" -}}
+    {{- $jpegMedium := $original.Resize "400x jpeg q85" -}}
+    {{- $webpSmall := $original.Resize "200x webp q85" -}}
+    {{- $jpegSmall := $original.Resize "200x jpeg q85" -}}
+
+    <picture>
+        <!-- Large screens -->
+        <source media="(min-width: 768px)" 
+                srcset="{{ $webpLarge.RelPermalink }}" 
+                type="image/webp">
+        <source media="(min-width: 768px)" 
+                srcset="{{ $jpegLarge.RelPermalink }}" 
+                type="image/jpeg">
+        
+        <!-- Medium screens -->
+        <source media="(min-width: 480px)" 
+                srcset="{{ $webpMedium.RelPermalink }}" 
+                type="image/webp">
+        <source media="(min-width: 480px)" 
+                srcset="{{ $jpegMedium.RelPermalink }}" 
+                type="image/jpeg">
+        
+        <!-- Small screens -->
+        <source srcset="{{ $webpSmall.RelPermalink }}" type="image/webp">
+        <source srcset="{{ $jpegSmall.RelPermalink }}" type="image/jpeg">
+        
+        <!-- Fallback -->
+        <img src="{{ $jpegMedium.RelPermalink }}"
+             alt="{{ $alt }}"
+             class="{{ $class }}"
+             loading="{{ $loading }}"
+             decoding="async"
+             {{ if eq $fetchpriority "high" }}fetchpriority="high"{{ end }}
+             style="max-width: 100%; height: auto;">
+    </picture>
+{{- else -}}
+    <div class="image-placeholder bg-light d-flex align-items-center justify-content-center" 
+         style="min-height: 200px; border-radius: 8px;">
+        <i class="fas fa-image fa-3x text-muted"></i>
+    </div>
+{{- end -}} 

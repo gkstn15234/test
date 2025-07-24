@@ -1,0 +1,97 @@
+{{ define "main" }}
+<section class="category-page">
+    <div class="container">
+        <!-- Category Header -->
+        <div class="category-header mb-4">
+            <h1 class="category-title h2 mb-2">{{ .Title }}</h1>
+            {{ if .Description }}
+            <p class="category-description text-muted">{{ .Description }}</p>
+            {{ end }}
+        </div>
+
+        <!-- Articles List -->
+        <div class="articles-grid">
+            {{ range .Pages }}
+            <article class="article-item mb-4">
+                <a href="{{ .RelPermalink }}" class="text-decoration-none">
+                    <div class="row align-items-center">
+                        <!-- Thumbnail -->
+                        <div class="col-5 col-md-3">
+                            <div class="article-thumbnail">
+                                {{ if .Params.images }}
+                                <img src="{{ index .Params.images 0 }}" alt="{{ .Title }}" 
+                                     class="img-fluid w-100 h-100" 
+                                     style="height: 140px; object-fit: cover; border-radius: 8px;" 
+                                     loading="lazy">
+                                {{ else }}
+                                <div class="no-image d-flex align-items-center justify-content-center h-100" 
+                                     style="height: 140px; background: #f8f9fa; border-radius: 8px;">
+                                    <i class="fas fa-{{ if eq .Section "automotive" }}car{{ else if eq .Section "economy" }}chart-line{{ else }}newspaper{{ end }} fa-lg text-muted"></i>
+                                </div>
+                                {{ end }}
+                            </div>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="col-7 col-md-9">
+                            <div class="article-content ps-2 ps-md-3">
+                                <h3 class="article-title h6 h5-md mb-1 mb-md-2 text-dark">{{ .Title }}</h3>
+                                <p class="article-excerpt text-muted mb-1 mb-md-2 d-none d-sm-block">{{ .Summary | plainify | truncate 150 }}</p>
+                                <small class="text-muted">{{ .Date.Format "2006.01.02" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </article>
+            {{ end }}
+        </div>
+        
+        {{ if eq (len .Pages) 0 }}
+        <div class="text-center py-5">
+            <i class="fas fa-newspaper fa-3x text-muted mb-3"></i>
+            <h3 class="text-muted">아직 등록된 기사가 없습니다.</h3>
+        </div>
+        {{ end }}
+    </div>
+</section>
+
+<style>
+.category-page {
+    padding: 2rem 0;
+}
+
+.article-item {
+    padding: 1.5rem;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    transition: box-shadow 0.2s ease;
+}
+
+.article-item:hover {
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+    border-color: #dee2e6;
+}
+
+.article-title {
+    line-height: 1.4;
+}
+
+.article-excerpt {
+    line-height: 1.6;
+}
+
+@media (max-width: 767.98px) {
+    .article-item {
+        padding: 1rem;
+    }
+    
+    .article-thumbnail {
+        margin-bottom: 1rem;
+    }
+    
+    .ps-md-3 {
+        padding-left: 0 !important;
+    }
+}
+</style>
+{{ end }}

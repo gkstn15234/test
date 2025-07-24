@@ -1,0 +1,98 @@
+{{ printf "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>" | safeHTML }}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:geo="http://www.google.com/geo/schemas/sitemap/1.0">
+    
+    <!-- Company/Organization Main Page -->
+    <url>
+        <loc>{{ "about/" | absURL }}</loc>
+        <lastmod>{{ now.Format "2006-01-02T15:04:05-07:00" }}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+        <geo:geo>
+            <!-- 오코노미 본사 위치 (경상북도 경산시 진량읍 일연로 747) -->
+            <geo:format>kml</geo:format>
+            <geo:lat>35.9</geo:lat>
+            <geo:lng>128.7</geo:lng>
+        </geo:geo>
+    </url>
+    
+    <!-- Contact Page with Location -->
+    <url>
+        <loc>{{ "contact/" | absURL }}</loc>
+        <lastmod>{{ now.Format "2006-01-02T15:04:05-07:00" }}</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+        <geo:geo>
+            <geo:format>kml</geo:format>
+            <geo:lat>35.9</geo:lat>
+            <geo:lng>128.7</geo:lng>
+        </geo:geo>
+    </url>
+    
+    <!-- Local/Regional News Articles -->
+    {{ range .Site.RegularPages }}
+    {{ if and .Params.location (not .Params.private) }}
+    <url>
+        <loc>{{ .Permalink }}</loc>
+        <lastmod>{{ .Lastmod.Format "2006-01-02T15:04:05-07:00" }}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+        <geo:geo>
+            <geo:format>kml</geo:format>
+        </geo:geo>
+    </url>
+    {{ end }}
+    {{ end }}
+    
+    <!-- Regional Economic News -->
+    {{ range where .Site.RegularPages "Section" "economy" }}
+    {{ if not .Params.private }}
+    <url>
+        <loc>{{ .Permalink }}</loc>
+        <lastmod>{{ .Lastmod.Format "2006-01-02T15:04:05-07:00" }}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+        <geo:geo>
+            <geo:format>kml</geo:format>
+            <!-- 한국 경제 뉴스 - 서울 중심 좌표 -->
+            <geo:lat>37.5665</geo:lat>
+            <geo:lng>126.9780</geo:lng>
+        </geo:geo>
+    </url>
+    {{ end }}
+    {{ end }}
+    
+    <!-- Automotive News -->
+    {{ range where .Site.RegularPages "Section" "automotive" }}
+    {{ if not .Params.private }}
+    <url>
+        <loc>{{ .Permalink }}</loc>
+        <lastmod>{{ .Lastmod.Format "2006-01-02T15:04:05-07:00" }}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+        <geo:geo>
+            <geo:format>kml</geo:format>
+            <!-- 한국 자동차 뉴스 - 서울 중심 좌표 -->
+            <geo:lat>37.5665</geo:lat>
+            <geo:lng>126.9780</geo:lng>
+        </geo:geo>
+    </url>
+    {{ end }}
+    {{ end }}
+    
+    <!-- Real Estate News (Location-based) -->
+    {{ range where .Site.RegularPages "Section" "realestate" }}
+    {{ if not .Params.private }}
+    <url>
+        <loc>{{ .Permalink }}</loc>
+        <lastmod>{{ .Lastmod.Format "2006-01-02T15:04:05-07:00" }}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.7</priority>
+        <geo:geo>
+            <geo:format>kml</geo:format>
+        </geo:geo>
+    </url>
+    {{ end }}
+    {{ end }}
+    
+</urlset> 
